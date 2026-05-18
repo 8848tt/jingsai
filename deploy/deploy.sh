@@ -1,6 +1,8 @@
 #!/usr/bin/env sh
+# 一键部署（请在仓库根目录执行：./deploy/deploy.sh）
 set -e
-cd "$(dirname "$0")"
+Root="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$Root"
 
 if ! command -v docker >/dev/null 2>&1; then
   echo "未找到 docker，请先安装 Docker。" >&2
@@ -8,8 +10,8 @@ if ! command -v docker >/dev/null 2>&1; then
 fi
 
 if [ ! -f .env ]; then
-  cp .env.example .env
-  echo "已从 .env.example 创建 .env，建议修改 DJANGO_SECRET_KEY。"
+  cp deploy/.env.example .env
+  echo "已从 deploy/.env.example 创建 .env，建议修改 DJANGO_SECRET_KEY。"
 fi
 
 docker compose up -d --build

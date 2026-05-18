@@ -1,14 +1,15 @@
-# 一键部署（Docker Compose）
+# 一键部署（请在仓库根目录执行：.\deploy\deploy.ps1）
 $ErrorActionPreference = "Stop"
-Set-Location $PSScriptRoot
+$Root = Split-Path $PSScriptRoot -Parent
+Set-Location $Root
 
 if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
     Write-Error "未找到 docker 命令，请先安装 Docker Desktop。"
 }
 
 if (-not (Test-Path ".env")) {
-    Copy-Item ".env.example" ".env"
-    Write-Host "已从 .env.example 创建 .env，建议修改 DJANGO_SECRET_KEY 后重新部署。"
+    Copy-Item "deploy\.env.example" ".env"
+    Write-Host "已从 deploy\.env.example 创建 .env，建议修改 DJANGO_SECRET_KEY 后重新部署。"
 }
 
 docker compose up -d --build

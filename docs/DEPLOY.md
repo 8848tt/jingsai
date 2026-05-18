@@ -13,17 +13,19 @@
 **Windows：**
 
 ```powershell
-.\deploy.ps1
+.\deploy\deploy.ps1
 ```
 
 **Linux / macOS：**
 
 ```bash
-chmod +x deploy.sh
-./deploy.sh
+chmod +x deploy/deploy.sh
+./deploy/deploy.sh
 ```
 
-首次运行会自动从 `.env.example` 生成 `.env`。默认访问：**http://localhost:8080**
+首次运行会自动从 `deploy/.env.example` 在根目录生成 `.env`。默认访问：**http://localhost:8080**
+
+`docker-compose.yml` 保留在仓库根目录，便于直接执行 `docker compose` 命令。
 
 ## 创建管理员
 
