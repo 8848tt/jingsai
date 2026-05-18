@@ -1,6 +1,6 @@
-# 竞赛管理系统（MVP）
+# 竞赛管理系统（jingsai）
 
-Django 5 + Django REST Framework 后端，Vite + Vue 3 + Element Plus 前端。三种角色：学生、管理员、专家。
+优秀的系统 — Django 5 + Django REST Framework 后端，Vite + Vue 3 + Element Plus 前端。三种角色：学生、管理员、专家。
 
 ## 环境要求
 
