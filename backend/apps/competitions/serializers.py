@@ -274,12 +274,14 @@ class AnnouncementAttachmentSerializer(serializers.ModelSerializer):
 class AnnouncementSerializer(serializers.ModelSerializer):
     attachments = AnnouncementAttachmentSerializer(many=True, read_only=True)
     is_reminder_unread = serializers.SerializerMethodField()
+    competition_title = serializers.SerializerMethodField()
 
     class Meta:
         model = Announcement
         fields = (
             "id",
             "competition",
+            "competition_title",
             "title",
             "body",
             "attachments",
@@ -290,8 +292,21 @@ class AnnouncementSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         )
-        read_only_fields = ("published_at", "created_at", "updated_at", "attachments", "is_reminder_unread")
+        read_only_fields = (
+            "published_at",
+            "created_at",
+            "updated_at",
+            "attachments",
+            "is_reminder_unread",
+            "competition_title",
+        )
         extra_kwargs = {"competition": {"required": False, "allow_null": True}}
+
+    def get_competition_title(self, obj):
+        if obj.competition_id is None:
+            return None
+        comp = getattr(obj, "competition", None)
+        return comp.title if comp else None
 
     def get_is_reminder_unread(self, obj):
         """学生端：本条是否属于「提醒范围内且尚未打开详情」。"""

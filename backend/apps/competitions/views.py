@@ -211,6 +211,7 @@ class SubmissionViewSet(viewsets.ModelViewSet):
         if _is_student(user):
             return qs.filter(team_id__in=_user_team_ids(user))
         if _is_expert(user):
+            qs = qs.filter(competition__status=Competition.Status.REVIEWING)
             comp_ids_with_assign = set(
                 SubmissionReviewAssignment.objects.values_list(
                     "submission__competition_id", flat=True
@@ -349,6 +350,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         if serializer.instance.expert_id != self.request.user.id:
             raise PermissionDenied()
+        comp = serializer.instance.submission.competition
+        if comp.status != Competition.Status.REVIEWING:
+            raise ValidationError("仅在「评审中」阶段可修改评分。")
         serializer.save()
 
 
@@ -377,7 +381,12 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
                 qs = qs.filter(competition_id=cid)
         if _is_admin(user):
             return qs
-        return qs.filter(is_published=True)
+        # 学生端：同一竞赛的公告相邻，组内按发布时间从新到旧
+        return qs.filter(is_published=True).order_by(
+            models.F("competition_id").asc(nulls_last=True),
+            "-published_at",
+            "-created_at",
+        )
 
     def _sync_announcement_attachments(self, announcement):
         raw = self.request.POST.get("delete_attachment_ids") or self.request.data.get(

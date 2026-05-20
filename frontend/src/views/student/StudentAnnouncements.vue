@@ -8,10 +8,15 @@
       </el-select>
     </template>
     <el-table v-loading="loading" :data="rows" border>
-      <el-table-column prop="competition" label="竞赛编号" width="110">
-        <template #default="{ row }">{{ row.competition != null ? row.competition : '全局' }}</template>
+      <el-table-column prop="competition" label="竞赛编号" width="100">
+        <template #default="{ row }">{{ row.competition != null ? row.competition : '—' }}</template>
       </el-table-column>
-      <el-table-column label="标题" min-width="160">
+      <el-table-column label="竞赛名称" min-width="140">
+        <template #default="{ row }">
+          {{ row.competition != null ? (row.competition_title || '—') : '全局' }}
+        </template>
+      </el-table-column>
+      <el-table-column label="公告标题" min-width="160">
         <template #default="{ row }">
           <span class="title-with-dot">
             <router-link class="title-link" :to="{ name: 'student-announcement-detail', params: { id: row.id } }">
@@ -52,12 +57,26 @@ const list = ref([])
 const competitions = ref([])
 const filterComp = ref(null)
 
+/** 同一竞赛聚在一起，组内按发布时间从新到旧；全局公告排在最后 */
+function sortByCompetitionThenTime(items) {
+  return [...items].sort((a, b) => {
+    const gA = a.competition ?? Number.MAX_SAFE_INTEGER
+    const gB = b.competition ?? Number.MAX_SAFE_INTEGER
+    if (gA !== gB) return gA - gB
+    const tA = Date.parse(a.published_at || a.created_at || '') || 0
+    const tB = Date.parse(b.published_at || b.created_at || '') || 0
+    return tB - tA
+  })
+}
+
 const rows = computed(() => {
+  let data = list.value
   if (filterComp.value === FILTER_GLOBAL_ONLY) {
-    return list.value.filter((a) => a.competition == null)
+    data = data.filter((a) => a.competition == null)
+  } else if (filterComp.value) {
+    data = data.filter((a) => a.competition === filterComp.value)
   }
-  if (!filterComp.value) return list.value
-  return list.value.filter((a) => a.competition === filterComp.value)
+  return sortByCompetitionThenTime(data)
 })
 
 function fmt(s) {

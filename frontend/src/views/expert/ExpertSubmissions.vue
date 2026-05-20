@@ -8,13 +8,14 @@
     </template>
     <el-alert
       v-if="!reviewing"
-      type="info"
+      type="warning"
       show-icon
       :closable="false"
-      title="管理员需将竞赛状态设为「评审中」后，专家才可提交或修改评分。"
+      title="当前竞赛未处于「评审中」阶段，无法查看学生提交的作品；管理员将状态设为「评审中」后方可查看并打分。"
       style="margin-bottom: 12px"
     />
-    <el-table v-loading="loading" :data="rows" border>
+    <el-empty v-if="!reviewing && !loading" description="评审中阶段开放作品查看" />
+    <el-table v-else v-loading="loading" :data="rows" border>
       <el-table-column prop="id" label="作品编号" width="90" />
       <el-table-column prop="team_name" label="队伍" width="140" />
       <el-table-column prop="description" label="说明" min-width="160" show-overflow-tooltip />
@@ -37,7 +38,7 @@
       </el-table-column>
       <el-table-column label="操作" width="120" fixed="right">
         <template #default="{ row }">
-          <el-button type="primary" link @click="openReview(row)">打分</el-button>
+          <el-button type="primary" link :disabled="!reviewing" @click="openReview(row)">打分</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -118,6 +119,10 @@ async function loadCompetition() {
 }
 
 async function loadSubmissions() {
+  if (competition.value?.status !== 'reviewing') {
+    submissions.value = []
+    return
+  }
   loading.value = true
   try {
     const { data } = await api.get('/submissions/', {
@@ -130,6 +135,10 @@ async function loadSubmissions() {
 }
 
 async function openReview(row) {
+  if (!reviewing.value) {
+    ElMessage.warning('仅「评审中」阶段可查看作品并打分')
+    return
+  }
   currentSubmission.value = row
   existingReviewId.value = null
   reviewForm.value = { score: 80, comment: '' }

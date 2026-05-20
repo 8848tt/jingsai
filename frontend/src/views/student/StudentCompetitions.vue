@@ -6,7 +6,7 @@
     </template>
     <el-table v-loading="loading" :data="rows" border>
       <el-table-column prop="id" label="竞赛编号" width="100" />
-      <el-table-column prop="title" label="标题" min-width="160" />
+      <el-table-column prop="title" label="竞赛名称" min-width="160" />
       <el-table-column prop="status" label="状态" width="120">
         <template #default="{ row }">{{ statusText(row.status) }}</template>
       </el-table-column>

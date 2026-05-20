@@ -6,9 +6,17 @@
       <el-table-column prop="status" label="状态" width="120">
         <template #default="{ row }">{{ statusText(row.status) }}</template>
       </el-table-column>
-      <el-table-column label="操作" width="160" fixed="right">
+      <el-table-column label="操作" width="200" fixed="right">
         <template #default="{ row }">
-          <el-button type="primary" link @click="go(row.id)">查看提交并评审</el-button>
+          <el-button
+            v-if="row.status === 'reviewing'"
+            type="primary"
+            link
+            @click="go(row.id)"
+          >
+            查看作品并评审
+          </el-button>
+          <span v-else class="muted-hint">评审中开放</span>
         </template>
       </el-table-column>
     </el-table>
@@ -54,3 +62,10 @@ function go(id) {
 
 onMounted(load)
 </script>
+
+<style scoped>
+.muted-hint {
+  color: var(--el-text-color-secondary);
+  font-size: 13px;
+}
+</style>
